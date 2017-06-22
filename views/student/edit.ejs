@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>学生信息管理系统 - 编辑学生</title>
+  <style>
+    form > div {
+      margin-top: 10px;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>编辑学生</h1>
+  <form action="/students/edit" method="post" id="form">
+    <!-- 
+      hidden 类型的 input 叫做表单隐藏域控件
+      一般很少使用，只要是使用这个表单控件，一般就是用来保存一些不希望被用户看见的数据，但是需要提交到服务器
+     -->
+    <input type="hidden" name="id" value="<%= student._id %>">
+    <div>
+      <label for="">姓名</label>
+      <input type="text" name="name" value="<%= student.name %>">
+    </div>
+    <div>
+      <label for="">性别</label>
+      <% if(student.gender === 'm') { %>
+        <input type="radio" name="gender" value="m" id="" checked>男
+        <input type="radio" name="gender" value="f" id="">女
+      <% } else { %>
+        <input type="radio" name="gender" value="m" id="">男
+        <input type="radio" name="gender" value="f" id="" checked>女
+      <% } %>
+    </div>
+    <div>
+      <label for="">年龄</label>
+      <input type="number" name="age" value="<%= student.age %>">
+    </div>
+    <div>
+      <label for="">联系电话</label>
+      <input type="text" name="phone" value="<%= student.phone %>">
+    </div>
+    <div>
+      <label for="">学号</label>
+      <input type="text" name="stu_number" value="<%= student.stu_number %>">
+    </div>
+    <div>
+      <label for="">籍贯</label>
+      <select name="province" id="">
+        <option value="北京市">北京市</option>
+        <option value="上海市">上海市</option>
+        <option value="河北省">河北省</option>
+        <option value="台湾省">台湾省</option>
+        <option value="钓鱼省">钓鱼省</option>
+      </select>
+      <select name="city" id="">
+        <option value="昌平区">昌平区</option>
+        <option value="保定市">保定市</option>
+        <option value="高雄市">高雄市</option>
+      </select>
+    </div>
+    <div>
+      <label for="">专业</label>
+      <select name="major" id="">
+        <% majors.forEach(function (major, index) { %>
+          <% if (student.major === major) { %>
+            <option value="<%= major %>" selected><%= major %></option>
+          <% } else { %>
+            <option value="<%= major %>"><%= major %></option>
+          <% } %>
+        <% }) %>
+      </select>
+    </div>
+    <div>
+      <input type="submit" value="编辑保存">
+    </div>
+  </form>
+  <script src="/node_modules/jquery/dist/jquery.js"></script>
+  <script>
+    $('#form').on('submit', function (e) {
+      $.ajax({
+        url: $(this).attr('action'),
+        type: $(this).attr('method'),
+        data: $(this).serialize(),
+        dataType: 'json',
+        success: function (data) {
+          var err_no = data.err_no
+          switch (err_no) {
+            case 0:
+              window.location.href = '/students'
+              break
+            case 500:
+              window.alert('服务器忙，请稍后重试')
+              break
+            default:
+              window.alert('未知错误，请稍后重试')
+              break
+          }
+        }
+      })
+      return false
+    })
+  </script>
+</body>
+</html>

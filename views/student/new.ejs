@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>学生信息管理系统 - 添加学生</title>
+  <style>
+    form > div {
+      margin-top: 10px;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>添加学生</h1>
+  <form action="/students/new" method="post" id="form">
+    <div>
+      <label for="">姓名</label>
+      <input type="text" name="name">
+    </div>
+    <div>
+      <label for="">性别</label>
+      <input type="radio" name="gender" value="m" id="">男
+      <input type="radio" name="gender" value="f" id="">女
+    </div>
+    <div>
+      <label for="">年龄</label>
+      <input type="number" name="age">
+    </div>
+    <div>
+      <label for="">联系电话</label>
+      <input type="text" name="phone">
+    </div>
+    <div>
+      <label for="">学号</label>
+      <input type="text" name="stu_number">
+    </div>
+    <div>
+      <label for="">籍贯</label>
+      <select name="province" id="">
+        <option value="北京市">北京市</option>
+        <option value="上海市">上海市</option>
+        <option value="河北省">河北省</option>
+        <option value="台湾省">台湾省</option>
+        <option value="钓鱼省">钓鱼省</option>
+      </select>
+      <select name="city" id="">
+        <option value="昌平区">昌平区</option>
+        <option value="保定市">保定市</option>
+        <option value="高雄市">高雄市</option>
+      </select>
+    </div>
+    <div>
+      <label for="">专业</label>
+      <select name="major" id="">
+        <option value="Java">Java</option>
+        <option value="UI">UI</option>
+        <option value="IOS">IOS</option>
+        <option value="前端与移动开发">前端与移动开发</option>
+        <option value="全干">全干</option>
+      </select>
+    </div>
+    <div>
+      <input type="submit" value="添加">
+    </div>
+  </form>
+  <script src="/node_modules/jquery/dist/jquery.js"></script>
+  <script>
+    // 只要了点击了表单内部的 submit 类型的 input
+    // 该按钮会自动触发表单的 submit 提交时间
+    // 这里虽然可以使用按钮的 click 但是表意性不好
+    // 由于我们要阻止表单的同步请求，所以这里可以通过在 submit 的处理函数中写一个 return false 的形式阻止表单默认同步提交，也可以通过 e.preventDefault() 的形式阻止表单的默认提交行为
+    // serialize() 方法是 jQuery 提供的一个方法，表示将表单内部的所有具有 name 的input 按照 key=value&key=value... 的格式提取成该类型的字符串
+    // $.ajax() 中的 data 属性既可以传递一个对象，也可以直接传递一个查询字符串
+    //    如果传递了对象，则 jQuery 在帮你提交表单的时候会自动将对象转为查询字符串之后再提交
+    //    如果传递的就是查询字符串，则直接提交
+    // $.ajax() 中的 dataType 其实是可以省略的
+    //    它的作用是可以指定服务器返回的数据格式，例如你指定为 json，则自动将服务器返回的数据按照 JSON 格式字符串转为对象
+    //    默认如果不指定，则 success 回调处理函数中接收到的数据就是字符胡，如果是 json 格式，需要自己手动通过 JSON.parse() 方法转换
+    $('#form').on('submit', function (e) {
+      // 发起请求之前，一定要做表单验证
+      // 所有验证都通过，才发起请求，提交数据过去
+      $.ajax({
+        url: $(this).attr('action'),
+        type: $(this).attr('method'),
+        data: $(this).serialize(),
+        dataType: 'json',
+        success: function (data) {
+          var err_no = data.err_no
+          switch (err_no) {
+            case 0:
+              window.location.href = '/students'
+              break
+            case 500:
+              window.alert('服务器忙，请稍后重试')
+              break
+            default:
+              window.alert('未知错误，请稍后重试')
+              break
+          }
+        }
+      })
+      return false
+    })
+  </script>
+</body>
+</html>

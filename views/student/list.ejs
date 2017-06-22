@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Document</title>
+</head>
+<body>
+  <h1>学生信息管理系统</h1>
+  <a href="/students/new">添加学生</a>
+  <table>
+    <thead>
+      <th>序号</th>
+      <th>姓名</th>
+      <th>性别</th>
+      <th>年龄</th>
+      <th>联系电话</th>
+      <th>学号</th>
+      <th>籍贯</th>
+      <th>专业</th>
+      <th>操作</th>
+    </thead>
+    <tbody>
+      
+    </tbody>
+  </table>
+  
+  <!-- 
+    这里一定要使用和 ejs 模板引擎不一样语法的模板引擎 
+    否则服务器端在渲染的时候也会解析。
+    使用的 art-template 模板引擎的简洁语法版（只要和 ejs 模板引擎的模板语法不一样就可以，这样服务端就不会去解析了）
+  -->
+  <script type="text/template" id="tpl">
+    {{ each students as student i  }}
+      <tr>
+        <td>{{ i + 1 }}</td>
+        <td>{{ student.name }}</td>
+        <td>{{ student.gender }}</td>
+        <td>{{ student.age }}</td>
+        <td>{{ student.phone }}</td>
+        <td>{{ student.stu_number }}</td>
+        <td>{{ student.province + student.city  }}</td>
+        <td>{{ student.major }}</td>
+        <td>
+          <a href="/students/info?id={{ student._id }}">查看</a>
+          <a href="/students/edit?id={{ student._id }}">编辑</a>
+          <a class="remove" href="/students/remove?id={{ student._id }}">删除</a>
+        </td>
+      </tr>
+    {{/each}}
+  </script>
+  <script src="/node_modules/art-template/dist/template.js"></script>
+  <script src="/node_modules/jquery/dist/jquery.js"></script>
+  <script>
+
+    // 页面第一次上来先调用加载一次数据
+    loadData()
+
+    function loadData() {
+      $.ajax({
+        url: '/students/list',
+        type: 'get',
+        dataType: 'json',
+        success: function (data) {
+          var err_no = data.err_no
+          switch (err_no) {
+            case 0:
+              $('tbody').html(template('tpl', {
+                students: data.data
+              }))
+              break
+            case 500:
+              window.alert('服务器忙，请稍后重试')
+              break
+            default:
+              
+              break
+          }
+          
+        }
+      })
+    }
+
+    // 对于异步加载的DOM数据，如果想要访问操作这个 DOM
+    // 两种方式：1. 放在加载 DOM 结束之后
+    //           2. 通过事件代理的形式添加
+    $('body').on('click','.remove', function (e) {
+        if (!window.confirm('您确定要删除吗？')) {
+          // 这里 return false 的目的是：
+          // 1. 代码不往后继续执行
+          // 2. a 链接的默认行为也不执行
+          return false
+        }
+        $.ajax({
+          url: $(this).attr('href'),
+          type: 'get',
+          dataType: 'json',
+          success: function (data) {
+            var err_no = data.err_no
+            switch (err_no) {
+              case 0:
+                loadData()
+                break
+              case 500:
+                window.alert('删除失败，请稍后重试')
+                break
+              default:
+                console.log(data)
+                window.alert('未知错误')
+                break
+            }
+          }
+        })
+      return false
+    })
+  </script>
+</body>
+</html>
